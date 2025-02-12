@@ -82,7 +82,7 @@ namespace melatonin
             // Always have class up top
             juce::Array<juce::PropertyComponent*> props = {
                 new juce::TextPropertyComponent (model.typeValue, "Class", 200, false, false),
-                new juce::TextPropertyComponent (model.nameValue, "Name", 200, false, false),
+                new juce::TextPropertyComponent (model.nameValue, "Name", 200, false, true),
             };
 
             // Then prioritize model properties

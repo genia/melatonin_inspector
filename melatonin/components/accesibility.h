@@ -27,7 +27,7 @@ namespace melatonin
 
             auto& ad = model.accessiblityDetail;
             auto aprops = juce::Array<juce::PropertyComponent*> {
-                new juce::TextPropertyComponent (ad.title, "Title", 200, false, false),
+                new juce::TextPropertyComponent (ad.title, "Title", 200, false, true),
                 new juce::TextPropertyComponent (ad.value, "Value", 200, false, false),
                 new juce::TextPropertyComponent (ad.role, "Role", 200, false, false),
                 new juce::TextPropertyComponent (ad.handlerType, "Handler", 200, false, false),

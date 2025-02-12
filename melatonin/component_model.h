@@ -182,6 +182,7 @@ namespace melatonin
                     accessiblityDetail.value = "no value interface";
                 }
                 accessiblityDetail.title = accH->getTitle();
+                accessiblityDetail.title.addListener( this );
                 auto role = accH->getRole();
                 switch (role)
                 {
@@ -360,6 +361,26 @@ namespace melatonin
                 {
                     if (auto button = dynamic_cast<juce::Button*> (selectedComponent.getComponent()))
                         button->setRadioGroupId (radioGroupId.getValue());
+                }
+                else if (value.refersToSameSourceAs (accessiblityDetail.title))
+                {
+                    auto titleStr = accessiblityDetail.title.getValue();
+                    selectedComponent->setTitle (titleStr);
+                    if (auto label = dynamic_cast<juce::Label*> (selectedComponent.getComponent()))
+                    {
+                        label->setText( titleStr, juce::dontSendNotification );
+                    }
+                    else if (auto button = dynamic_cast<juce::Button*> (selectedComponent.getComponent()))
+                    {
+                        button->setButtonText( titleStr );
+                    }
+
+                    selectedComponent->repaint();
+                }
+                else if (value.refersToSameSourceAs (nameValue))
+                {
+                    if (auto component = selectedComponent.getComponent())
+                        component->setName (nameValue.getValue());
                 }
                 else
                 {
