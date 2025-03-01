@@ -41,13 +41,13 @@ public:
     {
         if (shouldFit)
         {
-            params["rightToParent"] = 0;
+            params["rightInset"] = 0;
             params["rightInsetEnabled"] = true;
-            params["leftToParent"] = 0;
+            params["leftInset"] = 0;
             params["leftInsetEnabled"] = true;
-            params["topToParent"] = 0;
+            params["topInset"] = 0;
             params["topInsetEnabled"] = true;
-            params["bottomToParent"] = 0;
+            params["bottomInset"] = 0;
             params["bottomInsetEnabled"] = true;
         }
         else
@@ -71,8 +71,8 @@ public:
         Component *parent = getComponent().getParentComponent();
         if (parent != nullptr)
         {
-            params["rightToParent"] = parent->getWidth() - getComponent().getRight();
-            params["bottomToParent"] = parent->getHeight() - getComponent().getBottom();
+            params["rightInset"] = parent->getWidth() - getComponent().getRight();
+            params["bottomInset"] = parent->getHeight() - getComponent().getBottom();
         }
     }
     
@@ -98,7 +98,7 @@ public:
                 if (mrp->params["rightInsetEnabled"].getValue())
                 {
                     int pWidth = p.getWidth();
-                    int newRight = pWidth - (int)mrp->params["rightToParent"].getValue();
+                    int newRight = pWidth - (int)mrp->params["rightInset"].getValue();
                     if (mrp->params["leftInsetEnabled"].getValue())
                     {
                         childBounds.setRight( newRight );
@@ -111,7 +111,7 @@ public:
                 if (mrp->params["bottomInsetEnabled"].getValue())
                 {
                     int pHeight = p.getHeight();
-                    int newBottom = pHeight - (int)mrp->params["bottomToParent"].getValue();
+                    int newBottom = pHeight - (int)mrp->params["bottomInset"].getValue();
                     if (mrp->params["topInsetEnabled"].getValue())
                     {
                         childBounds.setBottom( newBottom );
