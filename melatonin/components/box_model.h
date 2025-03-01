@@ -13,10 +13,10 @@ namespace melatonin
     public:
         explicit BoxModel (ComponentModel& componentModel)
             : model (componentModel),
-        tackTopToParentButton("tackTopToParentButton", juce::DrawableButton::ImageFitted),
-        tackRightToParentButton("tackRightToParentButton", juce::DrawableButton::ImageFitted),
-        tackBottomToParentButton("tackBottomToParentButton", juce::DrawableButton::ImageFitted),
-        tackLeftToParentButton("tackLeftToParentButton", juce::DrawableButton::ImageFitted)
+        insetTopButton("insetTopButton", juce::DrawableButton::ImageFitted),
+        insetRightButton("insetRightButton", juce::DrawableButton::ImageFitted),
+        insetBottomButton("insetBottomButton", juce::DrawableButton::ImageFitted),
+        insetLeftButton("insetLeftButton", juce::DrawableButton::ImageFitted)
         {
             addAndMakeVisible (componentLabel);
             componentLabel.setColour (juce::Label::textColourId, colors::boxModelBoundingBox);
@@ -55,7 +55,7 @@ namespace melatonin
             heightLabel.setJustificationType (juce::Justification::centredLeft);
             heightLabel.setColour (juce::Label::textColourId, colors::white);
 
-            juce::Label* parentLabels[4] = { &topToParentLabel, &rightToParentLabel, &bottomToParentLabel, &leftToParentLabel };
+            juce::Label* parentLabels[4] = { &topInsetLabel, &rightInsetLabel, &bottomInsetLabel, &leftInsetLabel };
             juce::Label* paddingLabels[4] = { &paddingTopLabel, &paddingRightLabel, &paddingLeftLabel, &paddingBottomLabel };
 
             for (auto parentLabel : parentLabels)
@@ -146,14 +146,14 @@ namespace melatonin
         juce::Label byLabel;
         juce::Label heightLabel;
 
-        juce::Label topToParentLabel;
-        juce::DrawableButton tackTopToParentButton;
-        juce::Label rightToParentLabel;
-        juce::DrawableButton tackRightToParentButton;
-        juce::Label bottomToParentLabel;
-        juce::DrawableButton tackBottomToParentButton;
-        juce::Label leftToParentLabel;
-        juce::DrawableButton tackLeftToParentButton;
+        juce::Label topInsetLabel;
+        juce::DrawableButton insetTopButton;
+        juce::Label rightInsetLabel;
+        juce::DrawableButton insetRightButton;
+        juce::Label bottomInsetLabel;
+        juce::DrawableButton insetBottomButton;
+        juce::Label leftInsetLabel;
+        juce::DrawableButton insetLeftButton;
         
         juce::Label paddingTopLabel,
             paddingRightLabel,
@@ -180,13 +180,13 @@ namespace melatonin
             {
                 updateDisplayedComponentPaddingProperties (paddingRightLabel.getText().getIntValue(), paddingLeftLabel.getText().getIntValue(), paddingTopLabel.getText().getIntValue(), paddingBottomLabel.getText().getIntValue());
             }
-            if (changedLabel == &topToParentLabel || changedLabel == &bottomToParentLabel
-                || changedLabel == &leftToParentLabel || changedLabel == &rightToParentLabel)
+            if (changedLabel == &topInsetLabel || changedLabel == &bottomInsetLabel
+                || changedLabel == &leftInsetLabel || changedLabel == &rightInsetLabel)
             {
-                auto topVal = topToParentLabel.getText().getIntValue();
-                auto leftVal = leftToParentLabel.getText().getIntValue();
-                auto bottomVal = bottomToParentLabel.getText().getIntValue();
-                auto rightVal = rightToParentLabel.getText().getIntValue();
+                auto topVal = topInsetLabel.getText().getIntValue();
+                auto leftVal = leftInsetLabel.getText().getIntValue();
+                auto bottomVal = bottomInsetLabel.getText().getIntValue();
+                auto rightVal = rightInsetLabel.getText().getIntValue();
                 model.getSelectedComponent()->setTopLeftPosition (leftVal, topVal);
                 model.getSelectedComponent()->setSize (model.getSelectedComponent()->getParentWidth() - rightVal - leftVal,
                     model.getSelectedComponent()->getParentHeight() - bottomVal - topVal);
@@ -223,17 +223,17 @@ namespace melatonin
             widthLabel.setEditable (true);
             heightLabel.setEditable (true);
 
-            topToParentLabel.setText (juce::String (boundsInParent.getY()), juce::dontSendNotification);
-            topToParentLabel.setEditable (true);
+            topInsetLabel.setText (juce::String (boundsInParent.getY()), juce::dontSendNotification);
+            topInsetLabel.setEditable (true);
 
-            rightToParentLabel.setText (juce::String (model.getSelectedComponent()->getParentWidth() - model.getSelectedComponent()->getWidth() - boundsInParent.getX()), juce::dontSendNotification);
-            rightToParentLabel.setEditable (true);
+            rightInsetLabel.setText (juce::String (model.getSelectedComponent()->getParentWidth() - model.getSelectedComponent()->getWidth() - boundsInParent.getX()), juce::dontSendNotification);
+            rightInsetLabel.setEditable (true);
 
-            bottomToParentLabel.setText (juce::String (model.getSelectedComponent()->getParentHeight() - model.getSelectedComponent()->getHeight() - boundsInParent.getY()), juce::dontSendNotification);
-            bottomToParentLabel.setEditable (true);
+            bottomInsetLabel.setText (juce::String (model.getSelectedComponent()->getParentHeight() - model.getSelectedComponent()->getHeight() - boundsInParent.getY()), juce::dontSendNotification);
+            bottomInsetLabel.setEditable (true);
 
-            leftToParentLabel.setText (juce::String (boundsInParent.getX()), juce::dontSendNotification);
-            leftToParentLabel.setEditable (true);
+            leftInsetLabel.setText (juce::String (boundsInParent.getX()), juce::dontSendNotification);
+            leftInsetLabel.setEditable (true);
 
             repaint();
         }
@@ -306,7 +306,7 @@ namespace melatonin
 
         void reset()
         {
-            juce::Label* labels[6] = { &widthLabel, &heightLabel, &topToParentLabel, &rightToParentLabel, &bottomToParentLabel, &leftToParentLabel };
+            juce::Label* labels[6] = { &widthLabel, &heightLabel, &topInsetLabel, &rightInsetLabel, &bottomInsetLabel, &leftInsetLabel };
 
             for (auto label : labels)
             {
