@@ -3,6 +3,7 @@
 #include "../helpers/component_helpers.h"
 #include "collapsable_panel.h"
 #include "melatonin_inspector/melatonin/component_model.h"
+#include "melatonin_inspector/InsetRelativeCoordinatePositioner.hpp"
 
 namespace melatonin
 {
@@ -132,10 +133,7 @@ namespace melatonin
             g.drawRect (componentRectangle(), (int) padding);
         }
 
-        void resized() override;
-
     private:
-        void moreLayout();
         
         ComponentModel& model;
 
@@ -164,9 +162,6 @@ namespace melatonin
         int paddingToParent = 44;
         juce::Path parentRectanglePath; // complicated b/c it's dashed
         bool isPaddingComponent { false };
-
-        void handleAlignButtonStateChange( juce::Label &label, const juce::Identifier &direction, bool state );
-        void initButton( juce::DrawableButton &button, juce::Label &label, const juce::Identifier &direction, const std::string &svgFile );
         
         void labelTextChanged (juce::Label* changedLabel) override
         {
@@ -192,8 +187,6 @@ namespace melatonin
                     model.getSelectedComponent()->getParentHeight() - bottomVal - topVal);
             }
         }
-
-        void componentModelChanged (ComponentModel&) override;
 
         juce::Rectangle<int> parentComponentRectangle()
         {
@@ -323,6 +316,156 @@ namespace melatonin
             componentLabel.setText ("", juce::dontSendNotification);
             parentComponentLabel.setText ("", juce::dontSendNotification);
         }
+        
+        void handleAlignButtonStateChange( juce::Label &label, const juce::Identifier &property, bool state )
+        {
+            Component *component = model.getSelectedComponent();
+            if (component == nullptr)
+                return;
+            InsetRelativeCoordinatePositioner *mrp = dynamic_cast<InsetRelativeCoordinatePositioner*>( component->getPositioner() );
+            if (mrp == nullptr)
+                return;
+
+            mrp->params[property] = state;
+        }
+
+        void
+        initButton( juce::DrawableButton &button, juce::Label &label, const juce::Identifier &property, const String &svgFile )
+        {
+            int size = 0;
+            auto rsrcName = svgFile.replace(".", "_");
+            auto data = InspectorBinaryData::getNamedResource (rsrcName.toUTF8(), size);
+            std::unique_ptr< Drawable > drawable = Drawable::createFromImageData(data, size);
+
+            Colour origColour( 0xff5f6368 );
+            juce::Colour newColour( Colours::lightgrey );
+            std::unique_ptr< Drawable > one = drawable->createCopy();
+            one->replaceColour(origColour, newColour);
+            std::unique_ptr< Drawable > two = drawable->createCopy();
+            two->replaceColour(origColour, newColour.darker());
+            std::unique_ptr< Drawable > three = drawable->createCopy();
+            three->replaceColour(origColour, newColour.darker(.8));
+            
+            juce::Colour newColourOn( Colours::red );
+            std::unique_ptr< Drawable > oneOn = drawable->createCopy();
+            oneOn->replaceColour(origColour, newColourOn);
+            std::unique_ptr< Drawable > twoOn = drawable->createCopy();
+            twoOn->replaceColour(origColour, newColourOn.darker());
+            std::unique_ptr< Drawable > threeOn = drawable->createCopy();
+            threeOn->replaceColour(origColour, newColourOn.darker(.8));
+            
+            auto buttonSize = 20;
+            button.setSize(buttonSize, buttonSize);
+            button.setToggleable( true );
+            button.setClickingTogglesState( true );
+            button.setImages(one.get(), two.get(), three.get(), nullptr,
+                             oneOn.get(), twoOn.get(), threeOn.get(), nullptr );
+            
+            button.onClick = [this, property, &label, &button] {
+                bool state = button.getToggleState();
+                this->handleAlignButtonStateChange( label, property, state );
+            };
+            
+        }
+
+        void moreLayout()
+        {
+            const std::array<std::tuple<juce::DrawableButton &, juce::Label &, juce::Identifier, juce::String>, 4> buttonDescArray = {{
+                {insetTopButton, topInsetLabel, "topInsetEnabled", "insetTop.svg", },
+                {insetRightButton, rightInsetLabel, "rightInsetEnabled", "insetRight.svg" },
+                {insetBottomButton, bottomInsetLabel, "bottomInsetEnabled", "insetBottom.svg", },
+                {insetLeftButton, topInsetLabel, "leftInsetEnabled", "insetLeft.svg"}
+            }};
+
+            for (auto [ button, label, property, filename ] : buttonDescArray)
+            {
+                initButton( button, label, property, filename );
+                addAndMakeVisible( button );
+            }
+        }
+
+        void resized() override
+        {
+            auto bounds = parentComponentRectangle();
+            auto center = bounds.getCentre();
+            auto labelHeight = 30;
+            auto buttonDistance = 20;
+            
+            parentComponentLabel.setBounds (bounds.getX(), bounds.getY() - labelHeight + 4, bounds.getWidth(), labelHeight);
+            componentLabel.setBounds (componentRectangle().getX(), componentRectangle().getY() - labelHeight + 4, componentRectangle().getWidth(), labelHeight);
+            
+            widthLabel.setBounds (center.getX() - 10 - paddingToParent, center.getY() - 15, paddingToParent, labelHeight);
+            byLabel.setBounds (center.getX() - 10, center.getY() - 15, 20, labelHeight);
+            heightLabel.setBounds (center.getX() + 10, center.getY() - 15, paddingToParent, labelHeight);
+            
+            topInsetLabel.setBounds (center.getX() - paddingToParent / 2, padding + paddingToParent / 2 - labelHeight / 2 - 3, paddingToParent, labelHeight);
+            insetTopButton.setTopLeftPosition(topInsetLabel.getX()-buttonDistance, topInsetLabel.getY() + topInsetLabel.getHeight()/4);
+            
+            rightInsetLabel.setBounds (getWidth() - padding - paddingToParent / 2 - paddingToParent / 2, center.getY() - labelHeight / 2, paddingToParent, labelHeight);
+            insetRightButton.setTopLeftPosition(rightInsetLabel.getX() + (rightInsetLabel.getWidth() - insetRightButton.getWidth())/2, rightInsetLabel.getY() - buttonDistance);
+            
+            bottomInsetLabel.setBounds (center.getX() - paddingToParent / 2, getHeight() - padding - paddingToParent / 2 - labelHeight / 2 + 3, paddingToParent, labelHeight);
+            insetBottomButton.setTopLeftPosition(bottomInsetLabel.getX()-buttonDistance, bottomInsetLabel.getY() + bottomInsetLabel.getHeight()/4);
+            
+            leftInsetLabel.setBounds (padding + paddingToParent / 2 - paddingToParent / 2, center.getY() - labelHeight / 2, paddingToParent, labelHeight);
+            insetLeftButton.setTopLeftPosition(leftInsetLabel.getX() + (leftInsetLabel.getWidth() - insetLeftButton.getWidth())/2, leftInsetLabel.getY() - buttonDistance);
+            
+            auto area1 = bounds.reduced (paddingToParent)
+                .removeFromTop (padding)
+                .withSizeKeepingCentre (padding, padding);
+            paddingTopLabel.setBounds (area1);
+            
+            auto area2 = bounds.reduced (paddingToParent)
+                .removeFromBottom (padding)
+                .withSizeKeepingCentre (padding, padding);
+            paddingBottomLabel.setBounds (area2);
+            
+            auto area3 = bounds.reduced (paddingToParent)
+                .removeFromLeft (padding)
+                .withSizeKeepingCentre (padding, padding);
+            paddingLeftLabel.setBounds (area3);
+            
+            auto area4 = bounds.reduced (paddingToParent)
+                .removeFromRight (padding)
+                .withTrimmedTop (padding)
+                .withTrimmedBottom (padding)
+                .withSizeKeepingCentre (padding, padding);
+            paddingRightLabel.setBounds (area4);
+        }
+
+        void componentModelChanged (ComponentModel&) override
+        {
+            updateLabels();
+            updatePaddingLabelsIfNeeded();
+            
+            Component *comp = model.getSelectedComponent();
+            if (comp == nullptr)
+                return;
+            InsetRelativeCoordinatePositioner *mrp = dynamic_cast<InsetRelativeCoordinatePositioner*>( comp->getPositioner() );
+            if (mrp != nullptr)
+            {
+                insetRightButton.setEnabled(true);
+                insetRightButton.setToggleState(mrp->params["rightInsetEnabled"].getValue(), juce::dontSendNotification);
+                insetLeftButton.setEnabled(true);
+                insetLeftButton.setToggleState(mrp->params["leftInsetEnabled"].getValue(), juce::dontSendNotification);
+                insetTopButton.setEnabled(true);
+                insetTopButton.setToggleState(mrp->params["topInsetEnabled"].getValue(), juce::dontSendNotification);
+                insetBottomButton.setEnabled(true);
+                insetBottomButton.setToggleState(mrp->params["bottomInsetEnabled"].getValue(), juce::dontSendNotification);
+            }
+            else
+            {
+                insetRightButton.setEnabled(false);
+                insetRightButton.setToggleState(false, juce::dontSendNotification);
+                insetLeftButton.setEnabled(false);
+                insetLeftButton.setToggleState(false, juce::dontSendNotification);
+                insetTopButton.setEnabled(false);
+                insetTopButton.setToggleState(false, juce::dontSendNotification);
+                insetBottomButton.setEnabled(false);
+                insetBottomButton.setToggleState(false, juce::dontSendNotification);
+            }
+        }
+
 
         JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (BoxModel)
     };

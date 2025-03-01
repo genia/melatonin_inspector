@@ -419,19 +419,21 @@ namespace melatonin
             resized();
         }
 
-        void initDrawableButton( juce::DrawableButton &button, const std::string &svgFile )
+        void initDrawableButton( juce::DrawableButton &button, const juce::String &svgFile )
         {
-            std::unique_ptr< juce::Drawable > drawable = juce::Drawable::createFromSVGFile(juce::File( juce::File::getSpecialLocation (juce::File::currentApplicationFile)
-                       .getChildFile ("Contents")
-                       .getChildFile ("Resources")
-                       .getChildFile (svgFile) ));
+            int size = 0;
+            auto rsrcName = svgFile.replace(".", "_");
+            auto data = InspectorBinaryData::getNamedResource (rsrcName.toUTF8(), size);
+            std::unique_ptr< juce::Drawable > drawable = juce::Drawable::createFromImageData(data, size);
+
             juce::Colour origColour( 0xff5f6368 );
+            juce::Colour newColour( 0xffffe58a );
             std::unique_ptr< juce::Drawable > one = drawable->createCopy();
-            one->replaceColour(origColour, juce::Colours::goldenrod);
+            one->replaceColour(origColour, newColour);
             std::unique_ptr< juce::Drawable > two = drawable->createCopy();
-            two->replaceColour(origColour, juce::Colours::goldenrod.darker());
+            two->replaceColour(origColour, newColour.darker());
             std::unique_ptr< juce::Drawable > three = drawable->createCopy();
-            three->replaceColour(origColour, juce::Colours::goldenrod.darker(.4*2));
+            three->replaceColour(origColour, newColour.darker(.8));
             button.setSize( 24, 24 );
             button.setImages(one.get(), two.get(), three.get() );
             addAndMakeVisible ( button );
