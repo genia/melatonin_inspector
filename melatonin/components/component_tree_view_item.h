@@ -359,9 +359,12 @@ namespace melatonin
             juce::Point newParentPos = newParentComp->getScreenPosition();
             juce::Point offsetPt =  draggedCompParentPos - newParentPos;
             
-            newParentComp->addAndMakeVisible( draggedComp );
-            draggedComp->setTopLeftPosition( draggedComp->getPosition() + offsetPt );
-
+            if (newParentComp != draggedComp)
+            {
+                // can't drop the component onto itself
+                newParentComp->addAndMakeVisible( draggedComp );
+                draggedComp->setTopLeftPosition( draggedComp->getPosition() + offsetPt );
+            }
 //            treeView->outlineComponentCallback( thisComp );
 //            treeView->selectComponent( other );
 //            treeView->displayComponentInfo( other );
