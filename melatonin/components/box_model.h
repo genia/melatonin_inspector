@@ -165,11 +165,12 @@ namespace melatonin
         
         void labelTextChanged (juce::Label* changedLabel) override
         {
-
+            
             if (changedLabel == &widthLabel || changedLabel == &heightLabel)
             {
                 model.getSelectedComponent()->setSize (widthLabel.getText().getIntValue(), heightLabel.getText().getIntValue());
             }
+            
             if (changedLabel == &paddingRightLabel || changedLabel == &paddingLeftLabel
                 || changedLabel == &paddingTopLabel || changedLabel == &paddingBottomLabel)
             {
@@ -183,8 +184,12 @@ namespace melatonin
                 auto bottomVal = bottomInsetLabel.getText().getIntValue();
                 auto rightVal = rightInsetLabel.getText().getIntValue();
                 model.getSelectedComponent()->setTopLeftPosition (leftVal, topVal);
-                model.getSelectedComponent()->setSize (model.getSelectedComponent()->getParentWidth() - rightVal - leftVal,
-                    model.getSelectedComponent()->getParentHeight() - bottomVal - topVal);
+                
+                if (changedLabel == &bottomInsetLabel || changedLabel == &rightInsetLabel)
+                {
+                    model.getSelectedComponent()->setSize (model.getSelectedComponent()->getParentWidth() - rightVal - leftVal,
+                                                           model.getSelectedComponent()->getParentHeight() - bottomVal - topVal);
+                }
             }
         }
 
