@@ -1,5 +1,11 @@
 #pragma once
 #include <juce_audio_processors/juce_audio_processors.h>
+#include <juce_gui_basics/juce_gui_basics.h>
+using namespace juce;
+#include <cctype>
+#include <juce_gui_basics/detail/juce_ScalingHelpers.h>
+#include <juce_gui_basics/detail/juce_ComponentHelpers.h>
+using namespace melatonin;
 
 #if !defined(_MSC_VER)
     #include <cxxabi.h>
@@ -110,4 +116,32 @@ namespace melatonin
             return "-";
         }
     }
+
+    static inline juce::Component *getComponentAtExclude( juce::Component *parent, const juce::Point<float> &position, juce::Component *exclude )
+    {
+        if (parent->isVisible() && juce::detail::ComponentHelpers::hitTest (*parent, position))
+        {
+            int nChildren = parent->getNumChildComponents();
+            for (int i = nChildren; --i >= 0;)
+            {
+                juce::Component* child = parent->getChildComponent(i);
+
+                child = getComponentAtExclude( child, juce::detail::ComponentHelpers::convertFromParentSpace (*child, position), exclude);
+
+                if ((child != nullptr) && (child != exclude))
+                    return child;
+            }
+
+            return parent;
+        }
+
+        return nullptr;
+    }
+
+    static inline juce::Component* getComponentAtExclude( juce::Component *parent, const juce::Point<int> &position, juce::Component *exclude )
+    {
+        return getComponentAtExclude( parent, position.toFloat(), exclude );
+    }
+
+
 }

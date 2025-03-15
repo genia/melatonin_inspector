@@ -422,6 +422,13 @@ namespace melatonin
                 MouseEvent e_ = e.getEventRelativeTo(parent);
                 if (parent->contains( e_.position ))
                 {
+                    Component *newParent = getComponentAtExclude( parent, e_.position, c );
+                    if (newParent != nullptr)
+                    {
+                        parent = newParent;
+                        parent->addAndMakeVisible( e.eventComponent );
+                    }
+                    
                     this->outlineDistanceCallback ( parent );
                 }
                 else
