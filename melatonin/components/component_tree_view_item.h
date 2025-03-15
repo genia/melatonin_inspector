@@ -351,7 +351,6 @@ namespace melatonin
 
         void itemDropped (const juce::DragAndDropTarget::SourceDetails &dragSourceDetails, int insertIndex) override
         {
-            juce::Component *treeView = dragSourceDetails.sourceComponent;
             juce::Component *draggedComp = (juce::Component *)(juce::pointer_sized_int)dragSourceDetails.description;
             juce::Component *draggedCompParent = draggedComp->getParentComponent();
             juce::Point draggedCompParentPos = draggedCompParent->getScreenPosition();

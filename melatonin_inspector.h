@@ -415,7 +415,24 @@ namespace melatonin
             overlayMouseListener.outlineDistanceCallback = [this] (Component* c) { this->outlineDistanceCallback (c); };
             overlayMouseListener.selectComponentCallback = [this] (Component* c) { this->selectComponent (c, true); };
             overlayMouseListener.componentStartDraggingCallback = [this] (Component* c, const juce::MouseEvent& e) { this->startDragComponent (c, e); };
-            overlayMouseListener.componentDraggedCallback = [this] (Component* c, const juce::MouseEvent& e) { this->dragComponent (c, e); };
+            overlayMouseListener.componentDraggedCallback = [this] (Component* c, const juce::MouseEvent& e) {
+                this->dragComponent (c, e);
+
+                Component *parent = e.eventComponent->getParentComponent();
+                MouseEvent e_ = e.getEventRelativeTo(parent);
+                if (parent->contains( e_.position ))
+                {
+                    this->outlineDistanceCallback ( parent );
+                }
+                else
+                {
+                    Component *grand = parent->getParentComponent();
+                    if (auto top = grand->getTopLevelComponent(); top != nullptr && top != root && top != grand)
+                    {
+                        grand->addAndMakeVisible( e.eventComponent );
+                    }
+                }
+            };
             overlayMouseListener.mouseExitCallback = [this] { if (this->inspectorEnabled) inspectorComponent.redisplaySelectedComponent(); };
 
             inspectorComponent.selectComponentCallback = [this] (Component* c) { this->selectComponent (c, false); };

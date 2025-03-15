@@ -207,7 +207,7 @@ namespace melatonin
         {
             if (isDraggingEnabled)
             {
-                resizable = std::make_unique<juce::ResizableBorderComponent> (component, &constrainer);
+                resizable = std::make_unique<juce::ResizableBorderComponent> (component, nullptr/*&constrainer*/);
                 dynamic_cast<juce::ResizableBorderComponent*> (resizable.get())->setBorderThickness (juce::BorderSize<int> (6));
                 addAndMakeVisible (*resizable);
 
@@ -291,7 +291,7 @@ namespace melatonin
             if (isInside || (selectedComponent && isDragging))
             {
                 isDragging = true;
-                componentDragger.dragComponent (selectedComponent, e, &constrainer);
+                componentDragger.dragComponent (selectedComponent, e, nullptr/*&constrainer*/);
             }
         }
 
@@ -314,7 +314,7 @@ namespace melatonin
         bool isDragging = false;
         bool isDraggingEnabled = false;
         juce::ComponentDragger componentDragger;
-        juce::ComponentBoundsConstrainer boundsConstrainer;
+        juce::ComponentBoundsConstrainer constrainer;
 
         Component::SafePointer<Component> selectedComponent;
         juce::Rectangle<int> selectedBounds;
@@ -339,7 +339,6 @@ namespace melatonin
             distanceToBottomLabelBounds;
 
         std::unique_ptr<juce::Component> resizable;
-        juce::ComponentBoundsConstrainer constrainer;
 
         juce::Label dimensions;
         juce::Rectangle<int> dimensionsLabelBounds;
