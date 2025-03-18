@@ -434,9 +434,12 @@ namespace melatonin
                 else
                 {
                     Component *grand = parent->getParentComponent();
-                    if (auto top = grand->getTopLevelComponent(); top != nullptr && top != root && top != grand)
+                    if (grand)
                     {
-                        grand->addAndMakeVisible( e.eventComponent );
+                        if (auto top = grand->getTopLevelComponent(); top != nullptr && top != root && top != grand)
+                        {
+                            grand->addAndMakeVisible( e.eventComponent );
+                        }
                     }
                 }
             };
