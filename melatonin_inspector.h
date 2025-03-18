@@ -418,27 +418,30 @@ namespace melatonin
             overlayMouseListener.componentDraggedCallback = [this] (Component* c, const juce::MouseEvent& e) {
                 this->dragComponent (c, e);
 
-                Component *parent = e.eventComponent->getParentComponent();
-                MouseEvent e_ = e.getEventRelativeTo(parent);
-                if (parent->contains( e_.position ))
+                auto *parent = e.eventComponent->getParentComponent();
+                if (parent)
                 {
-                    Component *newParent = getComponentAtExclude( parent, e_.position, c );
-                    if (newParent != nullptr)
+                    MouseEvent e_ = e.getEventRelativeTo(parent);
+                    if (parent->contains( e_.position ))
                     {
-                        parent = newParent;
-                        parent->addAndMakeVisible( e.eventComponent );
-                    }
-                    
-                    this->outlineDistanceCallback ( parent );
-                }
-                else
-                {
-                    Component *grand = parent->getParentComponent();
-                    if (grand)
-                    {
-                        if (auto top = grand->getTopLevelComponent(); top != nullptr && top != root && top != grand)
+                        auto *newParent = getComponentAtExclude( parent, e_.position, c );
+                        if (newParent)
                         {
-                            grand->addAndMakeVisible( e.eventComponent );
+                            parent = newParent;
+                            parent->addAndMakeVisible( e.eventComponent );
+                        }
+                        
+                        this->outlineDistanceCallback ( parent );
+                    }
+                    else
+                    {
+                        auto *grand = parent->getParentComponent();
+                        if (grand)
+                        {
+                            if (auto top = grand->getTopLevelComponent(); top != nullptr && top != root && top != grand)
+                            {
+                                grand->addAndMakeVisible( e.eventComponent );
+                            }
                         }
                     }
                 }
