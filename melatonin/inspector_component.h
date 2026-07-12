@@ -506,6 +506,7 @@ namespace melatonin
             return dynamic_cast<ComponentTreeViewItem*> (tree.getRootItem());
         }
 
+        std::unique_ptr<juce::FileChooser> _fileChooser;
         JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (InspectorComponent)
     };
 }
